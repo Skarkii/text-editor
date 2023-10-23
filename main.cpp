@@ -6,21 +6,32 @@
 #include <sstream>
 std::map<unsigned int, unsigned int> eol;
 unsigned int col_margin = 3;
+unsigned int row, col;
 
 bool save_contents(std::string filename) {
   std::ofstream file;
-  file.open(filename);
+  file.open(filename, std::ios::out | std::ios::binary);
 
   if(!file.is_open()) {
     assert(false && "could not open file");
   }
-  char str[getmaxx(stdscr)];
+  
   std::stringstream buffer;
   int i = 0;
   while(eol.count(i) != 0) {
-    mvinnstr(i, col_margin, str, eol[i] - col_margin);
-    buffer << str << '\n';
-    i ++;
+    //int row_len = 0;
+    for(unsigned int j = col_margin; j < eol[i]; j++) {
+      unsigned char ch = mvinch(i,j) & A_CHARTEXT;
+      if(ch >= 189) {
+	buffer << (char)0xC3 << (char)(ch - 64);
+      } else {
+        buffer << ch;
+      }
+    }
+    
+
+    buffer << '\n';
+    i++;
   }
 
   file << buffer.str();
@@ -28,27 +39,38 @@ bool save_contents(std::string filename) {
 }
 
 bool load_contents(std::string filename) {
-  std::fstream file;
-
+  std::ifstream file;
+  clear();
   file.open(filename);
-
+  eol.clear();
   if(!file.is_open()) {
-    assert(false && "could not open file");
-  }
+    std::ofstream ofile(filename, std::ios::out | std::ios::binary);
+    ofile.close();
 
-  std::stringstream buffer;
-  char c;
-  while(file >> c) {
-    buffer << c;
+    file.open(filename);
   }
-
-  mvprintw(0, col_margin, "%s", buffer.str().c_str());
+  int i = 0;
+  std::stringstream str;
+  std::string line;
+  while(std::getline(file, line)) {
+    int real_len = 0;
+    for(size_t i = 0; i < line.size(); i ++) {
+      if(line[i] != (char)195) {
+	real_len++;
+      }
+    }
+    eol[i] = col_margin + real_len;
+    mvprintw(i, col_margin, "%s", line.c_str());
+    i++;
+  }
+  row = 0;
+  col = col_margin;
+  move(row, col);
   
   return true;
 }
 
 int main(int argc, const char** argv) {
-
   int ch = -1;
   int last_ch = -1;
   setlocale(LC_ALL, "C.UTF-8");
@@ -56,13 +78,18 @@ int main(int argc, const char** argv) {
   initscr(); // Creates stdscr
   raw(); // Disables line-buffering
   keypad(stdscr, TRUE); // Enables F1-F12 etc
-
   
   noecho();
-  unsigned int row, col;
+  
   row = 0;
   col = col_margin;
   eol[0] = col;
+
+  std::string file = "savefile";
+  if(argc == 2) {
+    file = argv[1];
+    load_contents(file);
+  }
   
   move(row, col);
   refresh();
@@ -71,19 +98,29 @@ int main(int argc, const char** argv) {
   
     switch(ch) {
     case KEY_F(9):
-      save_contents("savefile");
+      save_contents(file);
       break;
     case KEY_F(10):
-      load_contents("savefile");
+      load_contents(file);
       break;
     case KEY_LEFT:
-      if(col <= col_margin) { break; }
+      if(col <= col_margin) {
+	if(row > 0) {
+	  row --;
+	  col = eol[row];
+	}
+	break;
+      }
       col --;
       break;
     case KEY_RIGHT:
       if(col + 1 <= eol[row]) {
 	col++;
+      } else if(eol.count(row + 1) != 0) {
+	row++;
+	col = col_margin;
       }
+	
       break;
     case KEY_UP:
       if(row < 1) { break; }
@@ -150,9 +187,12 @@ int main(int argc, const char** argv) {
       }
       eol[row] = eol[row] - 1;
       break;
-    case 9:
+    case 9: // TAB
+      {
+      
+      }
       break;
-    case 353:
+    case 353: // Shift tab
       break;
     case -1:
       break;
