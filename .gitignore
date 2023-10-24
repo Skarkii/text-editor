@@ -2,3 +2,5 @@
 test.cpp
 main
 makefile
+build/**
+todo

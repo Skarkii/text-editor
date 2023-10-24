@@ -7,18 +7,9 @@ Using ncurses this is my attempt to create my own text-editor. It is supposed to
 git clone https://github.com/Skarkii/text-editor
 ```
 
-``` console
-git clone git@github.com:Skarkii/text-editor.git
-```
-
-!!!NOTICE!!!
-
-As cmake is not yet set up, remember to include -lncursesw when compiling using g++. 
-
-!!!NOTICE!!!
-
 ## Goals
- - [x] Be able to write all keys from the Swedish layout. 
+ - [ ] Add multiple Windows
+ - [ ] Be able to write all keys from the Swedish layout. 
  - [ ] Be able to read and write to files
  - [ ] Run console commands
  - [ ] Add combined key commands
