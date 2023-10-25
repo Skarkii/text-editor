@@ -26,6 +26,8 @@ int main(int argc, char** argv) {
   
   win_control->add_window(stdscr);
 
+  win_control->create_panel_window();
+
   Input* input = new Input(win_control);
   
   while(input->get_state() != QUIT){

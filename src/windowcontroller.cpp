@@ -18,6 +18,27 @@ bool WindowController::add_window(WINDOW* window){
   return WindowController::add_window(new Window(window));
 }
 
+bool WindowController::create_panel_window(){
+  if(m_windows.size() < 1) {
+    add_window(stdscr);
+  }
+
+  WINDOW* temp = m_windows.at(0)->get_win();
+  int lines = 1;
+  int cols = getmaxx(temp);
+  int beg_y = getmaxy(temp) -1;
+  int beg_x = 0;
+  m_panel_window = new Window(lines, cols, beg_y, beg_x);
+  m_windows.push_back(m_panel_window);
+
+  wresize(temp, getmaxy(temp) - 1, cols);
+  return true;
+}
+
+Window* WindowController::get_panel(){
+  return m_panel_window;
+}
+
 bool WindowController::add_window() {
   if(m_windows.size() < 1) {
     add_window(stdscr);
@@ -31,7 +52,7 @@ bool WindowController::add_window() {
   m_windows.push_back(new Window(lines, cols, beg_y, beg_x));
 
   wresize(temp, lines, cols);
-  return 0;
+  return true;
 }
 
 Window* WindowController::active_window(){
