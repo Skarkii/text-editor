@@ -9,8 +9,8 @@ git clone https://github.com/Skarkii/text-editor
 
 ## Goals
  - [ ] Add multiple Windows
- - [ ] Be able to write all keys from the Swedish layout. 
- - [ ] Be able to read and write to files
+ - [X] Be able to write all keys from the Swedish layout. 
+ - [X] Be able to read and write to files
  - [ ] Run console commands
  - [ ] Add combined key commands
  - [ ] Find/search/replace

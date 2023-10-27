@@ -14,6 +14,30 @@ bool WindowController::add_window(Window* window){
   return true;
 }
 
+bool WindowController::add_buffer(Buffer* buffer){
+  m_buffers.push_back(buffer);
+  return true;
+}
+
+bool WindowController::load_buffer(int i){
+  if(i > m_buffers.size()) {
+    return false;
+  }
+
+  m_active_window->set_buffer(m_buffers[i]);
+
+  Buffer* buf = m_active_window->get_buffer();
+  
+  for(size_t j = 0; j < buf->get_row_count(); j++){
+    mvwprintw(m_active_window->get_win(), j, m_active_window->get_margin(), "%s", buf->get_line(j).c_str());
+  }
+  
+  wrefresh(m_active_window->get_win());
+  wmove(m_active_window->get_win(), 0, m_active_window->get_margin());
+  return true;
+}
+
+
 bool WindowController::add_window(WINDOW* window){
   return WindowController::add_window(new Window(window));
 }
@@ -22,16 +46,16 @@ bool WindowController::create_panel_window(){
   if(m_windows.size() < 1) {
     add_window(stdscr);
   }
-
+  
   WINDOW* temp = m_windows.at(0)->get_win();
-  int lines = 1;
-  int cols = getmaxx(temp);
-  int beg_y = getmaxy(temp) -1;
+  int lines = m_panel_size;
+  int cols = COLS;
+  int beg_y = LINES - m_panel_size;
   int beg_x = 0;
   m_panel_window = new Window(lines, cols, beg_y, beg_x);
   m_windows.push_back(m_panel_window);
-
-  wresize(temp, getmaxy(temp) - 1, cols);
+  
+  wresize(temp, getmaxy(temp) - m_panel_size, cols);
   return true;
 }
 
@@ -66,7 +90,7 @@ bool WindowController::set_active_window(int i) {
 
   m_active_window = m_windows.at(i);
 
-  wmove(m_active_window->get_win(), 0, 0);
+  wmove(m_active_window->get_win(), 0, m_active_window->get_margin());
   
   return true;
 }

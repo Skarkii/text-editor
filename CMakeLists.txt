@@ -9,12 +9,16 @@ set(SOURCES
 	src/window.cpp
 	src/windowcontroller.cpp
 	src/input.cpp
+	src/buffer.cpp
+	src/color.cpp
 )
 
 set(HEADERS
 	src/window.h
 	src/windowcontroller.h
 	src/input.h
+	src/buffer.h
+	src/color.h
 )
 
 set(CURSES_NEED_WIDE TRUE)
@@ -27,7 +31,7 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 target_include_directories(${PROJECT_NAME} PRIVATE src include)
 
 if (CMAKE_CXX_COPMPILER_ID MATCHES "GNU|Clang")
-   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+   target_compile_options(${PROJECT_NAME} PRIVATE -lncursesw -Wall -Wextra)
 endif()
 
-target_link_libraries(${PROJECT_NAME}  ${CURSES_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}  ncursesw)
