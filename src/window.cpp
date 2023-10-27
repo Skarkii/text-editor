@@ -118,7 +118,7 @@ bool Window::update_row_num(){
       if(i == m_row) {
 	std::string spaces(m_margin - count_digits(i+1) - 1, ' ');
 	wattron(m_win, COLOR_PAIR(PAIR_CURRENT_ROW_NUMBER_TEXT));
-        mvwprintw(m_win, i, 0, "%s%d", spaces.c_str(), i);
+        mvwprintw(m_win, i, 0, "%s%d", spaces.c_str(), i + 1);
 	wattroff(m_win, COLOR_PAIR(PAIR_CURRENT_ROW_NUMBER_TEXT));
 	continue;
       }
