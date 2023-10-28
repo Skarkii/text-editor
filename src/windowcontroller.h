@@ -15,13 +15,18 @@ class WindowController
   bool add_window(WINDOW* window);
   bool add_buffer(Buffer* buffer);
   bool create_panel_window();
+  bool save_current_buffer();
   bool load_buffer(int i);
   Window* get_panel();
   Window* active_window();
- private:
+  void update_panel();
+  void display_panel_message();
+  bool set_panel_message(std::string msg);
+private:
   Window* m_active_window = nullptr;
   Window* m_panel_window = nullptr;
   std::vector<Window*> m_windows;
   std::vector<Buffer*> m_buffers;
   int m_panel_size = 2;
+  std::string m_message = "";
 };

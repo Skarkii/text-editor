@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
 
   endwin();
 
-  win_control->active_window()->get_buffer()->print_contents();
+  //win_control->active_window()->get_buffer()->print_contents();
   
   return 0;
 };

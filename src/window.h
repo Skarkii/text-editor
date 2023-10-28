@@ -26,7 +26,7 @@ class Window
   void set_col(unsigned int col);
   bool update_row_num();
   void set_row_type(unsigned int type);
-  void cycle_row_type();
+  unsigned int cycle_row_type();
  private:
   Buffer* m_buf = nullptr;
   WINDOW* m_win = nullptr;

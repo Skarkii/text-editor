@@ -34,3 +34,4 @@ private:
   std::string m_file_name = "";
   bool is_extra_bytes(char ch);
 };
+#include <ncurses.h>

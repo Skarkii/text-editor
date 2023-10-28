@@ -147,6 +147,7 @@ void Window::set_row_type(unsigned int type) {
   m_row_type = type;
 }
 
-void Window::cycle_row_type(){
+unsigned int Window::cycle_row_type(){
   m_row_type = (row_display_type)((m_row_type + 1) % ROW_LAST);
+  return m_row_type;
 }

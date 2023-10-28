@@ -90,7 +90,45 @@ bool WindowController::set_active_window(int i) {
 
   m_active_window = m_windows.at(i);
 
-  wmove(m_active_window->get_win(), 0, m_active_window->get_margin());
+  //wmove(m_active_window->get_win(), 0, m_active_window->get_margin());
   
   return true;
+}
+
+void WindowController::update_panel() {
+  WINDOW* temp = get_panel()->get_win();
+  std::string tempstr = "";
+  
+  int row = m_active_window->get_row() + 1; // Correct for index 0 in code, row 1 in visual
+  int col = m_active_window->get_col() + 1;
+  
+  tempstr += std::to_string(row) + ':' + std::to_string(col);
+  wclear(temp);
+  mvwprintw(temp, 0, 0, "%s", active_window()->get_buffer()->get_file_name().c_str());
+  mvwprintw(temp, 0, getmaxx(temp) - tempstr.size(), "%s", tempstr.c_str());
+
+  display_panel_message();
+  wrefresh(temp);
+}
+
+void WindowController::display_panel_message(){
+  mvwprintw(get_panel()->get_win(), 1, 0, "%s", m_message.c_str());
+  if(m_message != "") { m_message = ""; }
+}
+
+bool WindowController::set_panel_message(std::string msg){
+  m_message = msg;
+  return true;
+}
+
+bool WindowController::save_current_buffer(){
+  if(active_window()->get_buffer()->save_file(active_window()->get_buffer()->get_file_name())) {
+    std::string str = "Wrote " + active_window()->get_buffer()->get_file_name();
+    set_panel_message(str);
+    return true;
+  }
+  else {
+    set_panel_message("Could not save file");
+    return false;
+  }
 }

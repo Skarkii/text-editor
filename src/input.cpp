@@ -12,20 +12,6 @@ int Input::get_state() {
   return m_state;
 }
 
-void Input::update_panel() {
-  WINDOW* temp = m_win_control->get_panel()->get_win();
-  std::string tempstr = "";
-  int row;
-  int col;
-  getyx(m_win_control->active_window()->get_win(), row, col);
-  tempstr += std::to_string(row + 1) + ':' + std::to_string(col + 1 - m_win_control->active_window()->get_margin());
-  wclear(temp);
-  mvwprintw(temp, 0, 0, "%s", m_win_control->active_window()->get_buffer()->get_file_name().c_str());
-  mvwprintw(temp, 0, getmaxx(temp) - std::to_string(row+1).size() - std::to_string(col+1-m_win_control->active_window()->get_margin()).size() - 1, "%s", tempstr.c_str());
-  mvwprintw(temp, 1, 0, "%s", "");
-  wrefresh(temp);
-  return;
-}
 
 void Input::insert_character(int ch){
     Window* cur = m_win_control->active_window();
@@ -72,8 +58,7 @@ void Input::remove_character(){
     cur->set_row(cur->get_row() - 1);
     cur->set_col(cur->get_buffer()->get_row_length(cur->get_row()));
     cur->get_buffer()->remove_line(cur->get_row());
-    deleteln();
-    
+    wdeleteln(cur->get_win());
     wmove(cur->get_win(), cur->get_row(), cur->get_col());
     mvwprintw(cur->get_win(), cur->get_row(), cur->get_col() + cur->get_margin(),"%s", str.c_str());
   }
@@ -122,19 +107,30 @@ void Input::move_down(){
   
 void Input::new_line(){
   Window* cur = m_win_control->active_window();
-
-  size_t char_size = cur->get_buffer()->get_real_index(cur->get_row(),cur->get_buffer()->get_row_length(cur->get_row())) - cur->get_buffer()->get_real_index(cur->get_row(), cur->get_col());
-  char str[char_size];
-  winnstr(cur->get_win(), str, char_size); // Copy everything to the end of line
-
   
-  cur->get_buffer()->remove_rest_of_line(cur->get_row(), cur->get_col()); // Remove the rest of the line
+  size_t char_size = cur->get_buffer()->get_real_index(cur->get_row(),cur->get_buffer()->get_row_length(cur->get_row())) - cur->get_buffer()->get_real_index(cur->get_row(), cur->get_col());
+  
+  char str[char_size];
+  winnstr(cur->get_win(), str, char_size);
+   
+  
   waddch(cur->get_win(), '\n');
-  insertln();
+  winsertln(cur->get_win());
   cur->set_row(cur->get_row() + 1);
+
+  cur->get_buffer()->remove_rest_of_line(cur->get_row() - 1, cur->get_col()); // Remove the rest of the line
   cur->get_buffer()->insert_new_line(cur->get_row(), str);
+
+  //std::string temp = std::to_string(cur->get_col());
+  //m_win_control->set_panel_message(temp);
+   
   cur->set_col(0);
   mvwaddstr(cur->get_win(), cur->get_row(), cur->get_col() + cur->get_margin(), str);
+}
+
+void Input::go_end_of_line(){
+  Window* cur = m_win_control->active_window();
+  cur->set_col(cur->get_buffer()->get_row_length(cur->get_row()));
 }
 
 void Input::tab(){
@@ -172,16 +168,21 @@ void Input::handle_input() {
     break;
   case KEY_F(8):
     break;
-  case KEY_F(9): // TEMP SAVE
-    m_win_control->active_window()->get_buffer()->save_file(m_win_control->active_window()->get_buffer()->get_file_name());
+  case KEY_F(9):
+    m_win_control->save_current_buffer();
     break;
   case KEY_F(10): // TEMP LOAD
+    m_win_control->set_panel_message("load");
     m_win_control->active_window()->get_buffer()->open_file(m_win_control->active_window()->get_buffer()->get_file_name());
     break;
   case KEY_F(11):
     break;
   case KEY_F(12):
-    m_win_control->active_window()->cycle_row_type();
+    {
+      unsigned int type = m_win_control->active_window()->cycle_row_type() + 1;
+      std::string str = "Set row type : " + std::to_string(type);
+      m_win_control->set_panel_message(str);
+    }
     break;
   case KEY_LEFT:
     move_left();
@@ -201,6 +202,9 @@ void Input::handle_input() {
   case KEY_BACKSPACE:
     remove_character();
     break;
+  case 5:
+    go_end_of_line();
+    break;
   case 9: // tab
     tab();
     break;
@@ -208,7 +212,9 @@ void Input::handle_input() {
     shift_tab();
     break;
   default:
-    insert_character(m_input);
+    //if(is_printable_char(m_input)){
+      insert_character(m_input);
+      //}
     break;
   };
   Window* wnd = m_win_control->active_window();
@@ -219,7 +225,16 @@ void Input::handle_input() {
   
   wmove(wnd->get_win(), wnd->get_row(), wnd->get_col() + wnd->get_margin());
   
-  update_panel();
+  m_win_control->update_panel();
   curs_set(1);
   m_input = wgetch(m_win_control->active_window()->get_win());
+}
+
+bool Input::is_printable_char(unsigned int ch){
+  if(ch >= 0X20 && ch <= 0X7E) {
+    return true;
+  } else if(ch == 0XC2 || ch == 0XC3 || ch == 0XE2) {
+    return true;
+  }
+  return false;
 }

@@ -5,3 +5,4 @@ makefile
 build/**
 todo
 old/**
+test/**

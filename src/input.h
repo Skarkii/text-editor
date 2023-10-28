@@ -14,7 +14,6 @@ class Input
   ~Input();
   void handle_input();
   int get_state();
-  void update_panel();
   void insert_character(int ch);
   void remove_character();
   void tab();
@@ -24,6 +23,8 @@ class Input
   void move_right();
   void move_up();
   void move_down();
+  void go_end_of_line();
+  bool is_printable_char(unsigned int ch);
 private:
   int m_input = -1;
   int m_state = RUN;

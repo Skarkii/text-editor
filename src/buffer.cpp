@@ -44,9 +44,18 @@ bool Buffer::is_extra_bytes(char ch){
 
 unsigned int Buffer::get_real_index(unsigned int row, unsigned int col){
   unsigned int index = 0;
-    
+
+  if(col > m_rows[row].first.size()) {
+    endwin();
+    std::cout << "ERROR: REQUESTED INVALID COLUMN FOR REAL INDEX" << std::endl;
+    exit(1);
+  }
+  if(col == 0) {
+    return 0;
+  }
+  
   for(size_t i = 0; i < m_rows[row].first.size(); i++) {
-    if(is_extra_bytes(m_rows[row].first[i]) == false) {
+    if(!is_extra_bytes(m_rows[row].first[i])) {
       index++;
     }
     if(index == col) {
@@ -55,6 +64,9 @@ unsigned int Buffer::get_real_index(unsigned int row, unsigned int col){
       break;
     }
   }
+  endwin();
+  std::cout << m_rows[row].first << std::endl << row << std::endl << col << std::endl;
+  exit(1);
   return -1;
 }
 
@@ -62,21 +74,21 @@ bool Buffer::insert_new_line(unsigned int i, std::string str){
   for(size_t j = m_rows.size(); j >= i; j--){
     m_rows[j] = m_rows[j-1];
   }
-  m_rows[i].first = str;
+  
   size_t size = 0;
   for(size_t j = 0; j < str.size(); j++){
     if(!is_extra_bytes(str[j])){
 	size++;
       }
   }
-  m_rows[i].second = size;
 
-  //m_rows[i-1].second = m_rows[i-1].second - size; 
+  m_rows[i].first = str;
+  m_rows[i].second = size;
   return true;
 }
 
 bool Buffer::remove_rest_of_line(unsigned int row, unsigned int col) {
-  m_rows[row].first.erase(col);
+  m_rows[row].first.erase(get_real_index(row, col));
   m_rows[row].second = col;
   return true;
 }
@@ -179,12 +191,13 @@ bool Buffer::save_file(std::string file_name){
   std::ofstream file;
   file.open(file_name);
   if(!file.is_open()){
-    assert(false && "Could not open file");
+    return false;
   }
   for(int i = 0; i < get_row_count(); i++){
     file << get_line(i) << '\n';
   }
   file.close();
+  std::string str = "Wrote " + file_name;
   return true;
 }
 
