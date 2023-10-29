@@ -180,6 +180,7 @@ bool Buffer::open_file(std::string file_name){
   return true;
 }
 
+
 std::string Buffer::get_file_name(){
   if(m_file_name == ""){
     return "New Buffer";

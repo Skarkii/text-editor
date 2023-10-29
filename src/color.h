@@ -17,3 +17,4 @@
 #define PAIR_CURRENT_ROW_NUMBER_TEXT 10
 
 bool init_colors();
+bool create_color(unsigned int id, unsigned int r, unsigned int b, unsigned int g);

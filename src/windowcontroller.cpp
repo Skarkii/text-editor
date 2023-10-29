@@ -88,10 +88,7 @@ bool WindowController::set_active_window(int i) {
     return false;
   }
 
-  m_active_window = m_windows.at(i);
-
-  //wmove(m_active_window->get_win(), 0, m_active_window->get_margin());
-  
+  m_active_window = m_windows.at(i);  
   return true;
 }
 

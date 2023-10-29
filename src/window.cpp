@@ -21,6 +21,7 @@ Window::Window(WINDOW* win){
   scrollok(m_win, TRUE);
   m_buf = new Buffer;
   wbkgd(m_win, COLOR_PAIR(DEFAULT_PAIR));
+  //nodelay(m_win, TRUE);
 };
 
 Window::~Window(){

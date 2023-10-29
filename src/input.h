@@ -25,8 +25,13 @@ class Input
   void move_down();
   void go_end_of_line();
   bool is_printable_char(unsigned int ch);
+  void enter_command_prompt();
+  bool execute_command(std::string str);
+  void jump_to_row(int row);
 private:
   int m_input = -1;
   int m_state = RUN;
   WindowController* m_win_control;
+  std::vector<std::string> split_string(std::string str, char delimiter);
+  bool is_string_digit(std::string str);
 };
